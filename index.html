@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AetherFin // Student Multi-Currency Intelligence</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            obsidian: '#090a0f',
+            carbon: '#11131a',
+            surface: '#171a24',
+            surfaceHover: '#1f2433',
+            borderGlow: 'rgba(255, 255, 255, 0.08)',
+            accentCyan: '#00f2fe',
+            accentViolet: '#7928ca',
+            accentEmerald: '#10b981',
+            accentAmber: '#f59e0b',
+            accentRose: '#f43f5e'
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['JetBrains Mono', 'Fira Code', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts & Lucide Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #090a0f;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #232736;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #374151;
+    }
+
+    /* Ambient Glow & Glassmorphism */
+    .glass-panel {
+      background: rgba(17, 19, 26, 0.78);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+    }
+    .glass-card {
+      background: linear-gradient(180deg, rgba(23, 26, 36, 0.8) 0%, rgba(15, 17, 23, 0.9) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .glass-card:hover {
+      border-color: rgba(0, 242, 254, 0.35);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px -10px rgba(0, 242, 254, 0.08);
+    }
+    .glow-cyan {
+      box-shadow: 0 0 25px rgba(0, 242, 254, 0.2);
+    }
+    .glow-active {
+      box-shadow: 0 0 16px rgba(0, 242, 254, 0.4);
+    }
+  </style>
+</head>
+
+<body class="bg-obsidian text-slate-200 min-h-screen font-sans flex flex-col selection:bg-cyan-500/30 selection:text-cyan-200 antialiased overflow-x-hidden">
+
+  <!-- ================= AUTH OVERLAY (LOGIN GATE) ================= -->
+  <div id="authOverlay" class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md px-4 transition-opacity duration-300">
+    <div class="relative w-full max-w-md p-8 rounded-2xl glass-panel shadow-2xl border border-white/10">
+      <div class="text-center mb-6">
+        <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-cyan-500 to-indigo-600 mb-4 shadow-lg shadow-cyan-500/20">
+          <i data-lucide="shield-check" class="w-7 h-7 text-white"></i>
+        </div>
+        <h2 class="text-2xl font-bold tracking-tight text-white">StudentFin<span class="text-cyan-400">OS</span></h2>
+        <p class="text-xs text-slate-400 mt-1 uppercase tracking-widest font-mono">Global Multi-Currency Intelligence</p>
+      </div>
+
+      <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1">Student University Email</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+              <i data-lucide="mail" class="w-4 h-4"></i>
+            </span>
+            <input type="email" id="loginEmail" required placeholder="alex@university.edu" value="scholar.alex@oxford.edu" class="w-full pl-9 pr-3 py-2.5 bg-black/40 border border-slate-700/80 rounded-xl text-sm focus:border-cyan-400 focus:outline-none focus:ring-1 focus:ring-cyan-400 transition" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1">Password or Student Token</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+              <i data-lucide="lock" class="w-4 h-4"></i>
+            </span>
+            <input type="password" id="loginPass" required value="studentPass2026" class="w-full pl-9 pr-3 py-2.5 bg-black/40 border border-slate-700/80 rounded-xl text-sm focus:border-cyan-400 focus:outline-none focus:ring-1 focus:ring-cyan-400 transition" />
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between text-xs text-slate-400">
+          <label class="flex items-center space-x-2 cursor-pointer">
+            <input type="checkbox" checked class="rounded bg-slate-800 border-slate-700 text-cyan-500 focus:ring-0">
+            <span>Remember terminal</span>
+          </label>
+          <span class="text-cyan-400 hover:underline cursor-pointer">Encrypted Vault</span>
+        </div>
+
+        <button type="submit" class="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-semibold rounded-xl text-sm transition-all shadow-lg shadow-cyan-500/20 active:scale-[0.98]">
+          Authenticate & Launch Terminal
+        </button>
+
+        <button type="button" onclick="quickGuestAccess()" class="w-full py-2 bg-white/5 hover:bg-white/10 text-slate-300 font-medium rounded-xl text-xs border border-white/5 transition">
+          🚀 Instant Demo Access (One-Click)
+        </button>
+      </form>
+
+      <div class="mt-6 pt-4 border-t border-slate-800/80 text-center">
+        <p class="text-[11px] text-slate-500">Cross-Border Verification Engine &bull; Zero Data Leaks</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= TOP NAVIGATION BAR ================= -->
+  <header class="sticky top-0 z-40 w-full glass-panel border-b border-white/5">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      
+      <!-- Logo & Brand -->
+      <div class="flex items-center space-x-3 cursor-pointer" onclick="switchNav('tools')">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 via-indigo-600 to-fuchsia-500 flex items-center justify-center shadow-md shadow-cyan-500/20">
+          <i data-lucide="sparkles" class="w-5 h-5 text-white"></i>
+        </div>
+        <div>
+          <span class="text-base font-bold tracking-tight text-white">Aether<span class="text-cyan-400">Fin</span></span>
+          <span class="hidden sm:inline-block ml-2 text-[10px] px-2 py-0.5 rounded-full bg-cyan-950/60 text-cyan-400 border border-cyan-500/30 font-mono">v4.8 OS</span>
+        </div>
+      </div>
+
+      <!-- Center Segment Navigation Switcher -->
+      <div class="flex items-center p-1 bg-carbon/90 rounded-xl border border-white/5">
+        <button id="navBtnTools" onclick="switchNav('tools')" class="flex items-center space-x-2 px-4 py-1.5 rounded-lg text-xs font-semibold bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 transition">
+          <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+          <span>Finance Suite</span>
+        </button>
+        <button id="navBtnChat" onclick="switchNav('chat')" class="flex items-center space-x-2 px-4 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition">
+          <i data-lucide="bot" class="w-3.5 h-3.5"></i>
+          <span>AI Copilot</span>
+          <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+        </button>
+        <button id="navBtnHistory" onclick="openTool('history')" class="flex items-center space-x-2 px-4 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition">
+          <i data-lucide="history" class="w-3.5 h-3.5"></i>
+          <span class="hidden md:inline">Ledger History</span>
+        </button>
+      </div>
+
+      <!-- Right Action & Profile -->
+      <div class="flex items-center space-x-3">
+        <!-- Live Currency Picker preview -->
+        <div class="hidden md:flex items-center space-x-2 px-2.5 py-1 bg-surface rounded-lg border border-white/5 text-xs">
+          <i data-lucide="globe" class="w-3.5 h-3.5 text-cyan-400"></i>
+          <span class="text-slate-400 text-[11px]">Base:</span>
+          <select id="globalBaseCurr" onchange="updateBaseCurrency(this.value)" class="bg-transparent text-white font-mono text-xs focus:outline-none cursor-pointer">
+            <option value="USD" class="bg-carbon">USD ($)</option>
+            <option value="EUR" class="bg-carbon">EUR (€)</option>
+            <option value="GBP" class="bg-carbon">GBP (£)</option>
+            <option value="BDT" class="bg-carbon">BDT (৳)</option>
+            <option value="CAD" class="bg-carbon">CAD ($)</option>
+          </select>
+        </div>
+
+        <!-- Student Badge / User Menu -->
+        <div id="userBadge" class="flex items-center space-x-2 pl-2">
+          <div class="w-8 h-8 rounded-full bg-gradient-to-r from-cyan-600 to-indigo-600 flex items-center justify-center font-bold text-xs text-white uppercase border border-white/20" id="userAvatar">
+            A
+          </div>
+          <button onclick="handleLogout()" title="Sign Out" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= MAIN CONTENT WRAPPER ================= -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col">
+    
+    <!-- ***************** VIEW 1: FINANCE MODULES GRID ***************** -->
+    <section id="toolsView" class="space-y-6">
+      
+      <!-- Top Intelligence Stat Banner -->
+      <div class="rounded-2xl glass-panel p-6 border border-white/10 relative overflow-hidden">
+        <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center space-x-2 text-xs font-mono text-cyan-400 mb-1">
+              <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+              <span>LIVE STUDENT PORTFOLIO MONITOR</span>
+            </div>
+            <h1 class="text-2xl font-bold text-white tracking-tight">Active Financial Engine</h1>
+            <p class="text-sm text-slate-400 mt-0.5">9 specialized modules configured for visa limits, scholarships, currency shields & rent contracts.</p>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-3">
+            <div class="bg-surface px-4 py-2 rounded-xl border border-white/5">
+              <p class="text-[10px] text-slate-400 uppercase font-mono">Weekly Visa Hours</p>
+              <p class="text-base font-bold text-emerald-400" id="statVisaHours">14.5 / 20.0 hrs</p>
+            </div>
+            <div class="bg-surface px-4 py-2 rounded-xl border border-white/5">
+              <p class="text-[10px] text-slate-400 uppercase font-mono">Today's Cap Remaining</p>
+              <p class="text-base font-bold text-cyan-400" id="statCapRemain">$34.50</p>
+            </div>
+            <div class="bg-surface px-4 py-2 rounded-xl border border-white/5">
+              <p class="text-[10px] text-slate-400 uppercase font-mono">Active Subscriptions</p>
+              <p class="text-base font-bold text-amber-400" id="statSubCount">4 Active</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 9 Modules Grid (+1 History Card) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        
+        <!-- CARD 1: CampusGrant Engine -->
+        <div onclick="openTool('campusGrant')" class="glass-card rounded-2xl p-5 cursor-pointer flex flex-col justify-between group">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-11 h-11 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center border border-indigo-500/20 group-hover:scale-105 transition">
+                <i data-lucide="graduation-cap" class="w-6 h-6"></i>
+              </div>
+              <span class="text-[11px] font-mono px-2 py-0.5 rounded-full bg-white/5 text-slate-400 border border-white/5">Auto-Match</span>
+            </div>
+            <h3 class="text-base font-semibold text-white group-hover:text-cyan-300 transition">CampusGrant Engine</h3>
+            <p class="text-xs text-slate-400 mt-1 leading-relaxed">Scholarship finder, tuition deadline planner, and emergency student financial aid estimator.</p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-xs text-cyan-400 font-medium">
+            <span>Calculate Aid Match</span>
+            <i data-lucide="arrow-right" class="w-4 h-4 transform group-hover:translate-x-1 transition"></i>
+          </div>
+        </div>
+
+        <!-- CARD 2: LeaseVault Safeguard -->
+        <div onclick="openTool('leaseVault')" class="glass-card rounded-2xl p-5 cursor-pointer flex flex-col justify-between group">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-11 h-11 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20 group-hover:scale-105 transition">
+                <i data-lucide="home" class="w-6 h-6"></i>
+              </div>
+              <span class="text-[11px] font-mono px-2 py-0.5 rounded-full bg-white/5 text-slate-400 border border-white/5">Escrow Shield</span>
+            </div>
+            <h3 class="text-base font-semibold text-white group-hover:text-cyan-300 transition">LeaseVault Safeguard</h3>
+            <p class="text-xs text-slate-400 mt-1 leading-relaxed">Rental lease inspector, security deposit protection ledger, and clause vulnerability scanner.</p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-xs text-cyan-400 font-medium">
+            <span>Secure Rental Deposit</span>
+            <i data-lucide="arrow-right" class="w-4 h-4 transform group-hover:translate-x-1 transition"></i>
+          </div>
+        </div>
+
+        <!-- CARD 3: VisaHour Tracker -->
+        <div onclick="openTool('visaHour')" class="glass-card rounded-2xl p-5 cursor-pointer flex flex-col justify-between group">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-11 h-11 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center border border-amber-500/20 group-hover:scale-105 transition">
+                <i data-lucide="clock" class="w-6 h-6"></i>
+              </div>
+              <span class="text-[11px] font-mono px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20">Legal Guard</span>
+            </div>
+            <h3 class="text-base font-semibold text-white group-hover:text-cyan-300 transition">VisaHour Tracker</h3>
+            <p class="text-xs text-slate-400 mt-1 leading-relaxed">20-hr weekly international work limit compliance safeguard with estimated net tax deduction.</p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-xs text-cyan-400 font-medium">
+            <span>Log Shifts & Hours</span>
+            <i data-lucide="arrow-right" class="w-4 h-4 transform group-hover:translate-x-1 transition"></i>
+          </div>
+        </div>
+
+        <!-- CARD 4: DailyCap Guard -->
+        <div onclick="openTool('dailyCap')" class="glass-card rounded-2xl p-5 cursor-pointer flex flex-col justify-between group">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-11 h-11 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center border border-rose-500/20 group-hover:scale-105 transition">
+                <i data-lucide="target" class="w-6 h-6"></i>
+              </div>
+              <span class="text-[11px] font-mono px-2 py-0.5 rounded-full bg-white/5 text-slate-400 border border-white/5">Budget Lock</span>
+            </div>
+            <h3 class="text-base font-semibold text-white group-hover:text-cyan-300 transition">DailyCap Guard</h3>
+            <p class="text-xs text-slate-400 mt-1 leading-relaxed">Dynamic daily student spending threshold with instant burn rate warning and expense logger.</p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-xs text-cyan-400 font-medium">
+            <span>Adjust Spending Limit</span>
+            <i data-lucide="arrow-right" class="w-4 h-4 transform group-hover:translate-x-1 transition"></i>
+          </div>
+        </div>
+
+        <!-- CARD 5: SubCancel Sentinel -->
+        <div onclick="openTool('subCancel')" class="glass-card rounded-2xl p-5 cursor-pointer flex flex-col justify-between group">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-11 h-11 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center border border-purple-500/20 group-hover:scale-105 transition">
+                <i data-lucide="refresh-cw" class="w-6 h-6"></i>
+              </div>
+              <span class="text-[11px] font-mono px-2 py-0.5 rounded-full bg-white/5 text-slate-400 border border-white/5">Recurring Drain</span>
+            </div>
+            <h3 class="text-base font-semibold text-white group-hover:text-cyan-300 transition">SubCancel Sentinel</h3>
+            <p class="text-xs text-slate-400 mt-1 leading-relaxed">Auto-track free trial expirations, recurring student software leaks, and cancellation drafts.</p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-xs text-cyan-400 font-medium">
+            <span>Audit Subscriptions</span>
+            <i data-lucide="arrow-right" class="w-4 h-4 transform group-hover:translate-x-1 transition"></i>
+          </div>
+        </div>
+
+        <!-- CARD 6: Live FX Exchange & Rate Alerts -->
+        <div onclick="openTool('fxAlerts')" class="glass-card rounded-2xl p-5 cursor-pointer flex flex-col justify-between group">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-11 h-11 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center border border-cyan-500/20 group-hover:scale-105 transition">
+                <i data-lucide="arrow-left-right" class="w-6 h-6"></i>
+              </div>
+              <span class="text-[11px] font-mono px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">Live Hedging</span>
+            </div>
+            <h3 class="text-base font-semibold text-white group-hover:text-cyan-300 transition">Live FX Exchange & Alerts</h3>
+            <p class="text-xs text-slate-400 mt-1 leading-relaxed">Multi-currency remittance optimizer with fee comparison and target exchange rate trigger.</p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-xs text-cyan-400 font-medium">
+            <span>Convert Multi-Currency</span>
+            <i data-lucide="arrow-right" class="w-4 h-4 transform group-hover:translate-x-1 transition"></i>
+          </div>
+        </div>
+
+        <!-- CARD 7: Emergency MicroFund & PeerAid -->
+        <div onclick="openTool('microFund')" class="glass-card rounded-2xl p-5 cursor-pointer flex flex-col justify-between group">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-11 h-11 rounded-xl bg-pink-500/10 text-pink-400 flex items-center justify-center border border-pink-500/20 group-hover:scale-105 transition">
+                <i data-lucide="heart-handshake" class="w-6 h-6"></i>
+              </div>
+              <span class="text-[11px] font-mono px-2 py-0.5 rounded-full bg-white/5 text-slate-400 border border-white/5">0% Interest Pool</span>
+            </div>
+            <h3 class="text-base font-semibold text-white group-hover:text-cyan-300 transition">Emergency MicroFund (PeerAid)</h3>
+            <p class="text-xs text-slate-400 mt-1 leading-relaxed">Peer-to-peer campus reserve pool for urgent end-of-month food & books with zero-interest records.</p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-xs text-cyan-400 font-medium">
+            <span>Access Emergency Pool</span>
+            <i data-lucide="arrow-right" class="w-4 h-4 transform group-hover:translate-x-1 transition"></i>
+          </div>
+        </div>
+
+        <!-- CARD 8: SmartSplit Ledger -->
+        <div onclick="openTool('smartSplit')" class="glass-card rounded-2xl p-5 cursor-pointer flex flex-col justify-between group">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-11 h-11 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center border border-blue-500/20 group-hover:scale-105 transition">
+                <i data-lucide="users" class="w-6 h-6"></i>
+              </div>
+              <span class="text-[11px] font-mono px-2 py-0.5 rounded-full bg-white/5 text-slate-400 border border-white/5">Multi-FX Split</span>
+            </div>
+            <h3 class="text-base font-semibold text-white group-hover:text-cyan-300 transition">SmartSplit Ledger</h3>
+            <p class="text-xs text-slate-400 mt-1 leading-relaxed">Roommate grocery, internet & utility bill divider with unequal shares and cross-currency settlement.</p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-xs text-cyan-400 font-medium">
+            <span>Split Shared Expenses</span>
+            <i data-lucide="arrow-right" class="w-4 h-4 transform group-hover:translate-x-1 transition"></i>
+          </div>
+        </div>
+
+        <!-- CARD 9: StudentPerks & Discount Radar -->
+        <div onclick="openTool('studentPerks')" class="glass-card rounded-2xl p-5 cursor-pointer flex flex-col justify-between group">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-11 h-11 rounded-xl bg-teal-500/10 text-teal-400 flex items-center justify-center border border-teal-500/20 group-hover:scale-105 transition">
+                <i data-lucide="tag" class="w-6 h-6"></i>
+              </div>
+              <span class="text-[11px] font-mono px-2 py-0.5 rounded-full bg-white/5 text-slate-400 border border-white/5">City Perks</span>
+            </div>
+            <h3 class="text-base font-semibold text-white group-hover:text-cyan-300 transition">StudentPerks Radar</h3>
+            <p class="text-xs text-slate-400 mt-1 leading-relaxed">Local discounts on metro cards, tech licenses, meal deals, and city-wide student privilege checks.</p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-xs text-cyan-400 font-medium">
+            <span>Explore Local Savings</span>
+            <i data-lucide="arrow-right" class="w-4 h-4 transform group-hover:translate-x-1 transition"></i>
+          </div>
+        </div>
+
+        <!-- MODULE 10: Persistent History Ledger Card -->
+        <div onclick="openTool('history')" class="glass-card rounded-2xl p-5 cursor-pointer flex flex-col justify-between group border-dashed border-cyan-500/30 bg-cyan-950/10 md:col-span-2 lg:col-span-3">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div class="flex items-center space-x-4">
+              <div class="w-12 h-12 rounded-xl bg-cyan-500/20 text-cyan-300 flex items-center justify-center border border-cyan-500/40">
+                <i data-lucide="history" class="w-6 h-6"></i>
+              </div>
+              <div>
+                <h3 class="text-base font-bold text-white group-hover:text-cyan-300 transition">Financial Activity History & Permanent Ledger</h3>
+                <p class="text-xs text-slate-400">All calculations, FX simulations, split balances and recorded logs are preserved locally.</p>
+              </div>
+            </div>
+            <div class="flex items-center space-x-3">
+              <span class="text-xs font-mono px-3 py-1 bg-surface rounded-lg border border-white/10 text-slate-300" id="historyCounterBadge">0 records</span>
+              <button class="px-4 py-2 bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 rounded-xl text-xs font-semibold hover:bg-cyan-500/20 transition flex items-center space-x-1">
+                <span>Open Ledger</span>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ***************** VIEW 2: AI COPILOT CHATBOT (MASSIVE WORKSPACE) ***************** -->
+    <section id="chatView" class="hidden flex-1 flex flex-col h-[calc(100vh-8.5rem)] glass-panel rounded-2xl border border-white/10 overflow-hidden">
+      <!-- Chat Header -->
+      <div class="p-4 border-b border-white/5 flex items-center justify-between bg-carbon/60">
+        <div class="flex items-center space-x-3">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-400 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-cyan-500/20">
+            <i data-lucide="bot" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <h2 class="text-sm font-bold text-white tracking-wide">AetherFin AI Copilot</h2>
+              <span class="text-[10px] px-2 py-0.2 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-500/30 font-mono">Agent v2.5 Online</span>
+            </div>
+            <p class="text-[11px] text-slate-400">Specialized in Visa 20hr compliance, FX transfers, scholarships & emergency budget survival.</p>
+          </div>
+        </div>
+
+        <div class="flex items-center space-x-2">
+          <button onclick="clearChatHistory()" title="Clear conversation" class="p-2 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-white/5 text-xs transition flex items-center space-x-1">
+            <i data-lucide="trash-2" class="w-4 h-4"></i>
+            <span class="hidden sm:inline">Reset Context</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Messages Scroll Area -->
+      <div id="chatMessages" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+        <!-- Default Welcome Assistant Message -->
+        <div class="flex items-start space-x-3 max-w-3xl">
+          <div class="w-8 h-8 rounded-xl bg-cyan-600/30 text-cyan-300 flex items-center justify-center shrink-0 border border-cyan-500/30 mt-0.5">
+            <i data-lucide="bot" class="w-4 h-4"></i>
+          </div>
+          <div class="p-4 rounded-2xl bg-surface border border-white/5 text-sm text-slate-200 leading-relaxed shadow-lg">
+            <p class="font-semibold text-cyan-300 text-xs uppercase tracking-wider mb-1">Aether Copilot Initialized</p>
+            <p>Hello! I am your student multi-currency financial co-pilot. I can evaluate your <strong>20-hour visa work restrictions</strong>, find <strong>cross-border currency conversion savings</strong>, draft <strong>lease disputes</strong>, or calculate how many days your stipend will last.</p>
+            <p class="mt-2 text-xs text-slate-400">Select any quick prompt below or type your financial situation directly.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Suggested Prompt Chips -->
+      <div class="px-4 py-2 border-t border-white/5 flex items-center space-x-2 overflow-x-auto no-scrollbar bg-carbon/40">
+        <span class="text-[10px] text-slate-500 font-mono uppercase whitespace-nowrap">Prompts:</span>
+        <button onclick="sendQuickPrompt('How do I safely transfer $1,200 to BDT with lowest wire fee?')" class="px-3 py-1 rounded-full bg-white/5 hover:bg-white/10 text-[11px] text-slate-300 border border-white/10 whitespace-nowrap transition">
+          💸 Low-fee FX transfer ($1200 to BDT)
+        </button>
+        <button onclick="sendQuickPrompt('I worked 18 hours this week on student visa. Can I take a 4-hour weekend shift?')" class="px-3 py-1 rounded-full bg-white/5 hover:bg-white/10 text-[11px] text-slate-300 border border-white/10 whitespace-nowrap transition">
+          ⚖️ Check Visa 20hr Limit
+        </button>
+        <button onclick="sendQuickPrompt('My landlord wants to keep my $800 security deposit for wall paint. Help me draft a dispute.')" class="px-3 py-1 rounded-full bg-white/5 hover:bg-white/10 text-[11px] text-slate-300 border border-white/10 whitespace-nowrap transition">
+          🛡️ Dispute Deposit Deduction
+        </button>
+        <button onclick="sendQuickPrompt('Give me a strict $15/day student survival grocery strategy for 2 weeks.')" class="px-3 py-1 rounded-full bg-white/5 hover:bg-white/10 text-[11px] text-slate-300 border border-white/10 whitespace-nowrap transition">
+          🛒 $15 Daily Meal Budget
+        </button>
+      </div>
+
+      <!-- Chat Input Field -->
+      <div class="p-4 bg-carbon/90 border-t border-white/5">
+        <form id="chatForm" onsubmit="handleChatSubmit(event)" class="relative flex items-center">
+          <input 
+            type="text" 
+            id="chatInput" 
+            placeholder="Ask about foreign exchange rates, student visa hours, tuition emergency..."
+            class="w-full pl-4 pr-24 py-3 bg-surface border border-white/10 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition"
+          />
+          <div class="absolute right-2 flex items-center space-x-1">
+            <button type="submit" class="p-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-semibold rounded-lg text-xs transition shadow-md shadow-cyan-500/20">
+              <i data-lucide="send" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </form>
+        <p class="text-[10px] text-slate-500 mt-2 text-center">AI Copilot synthesizes multi-currency rates, local regulations, and university policies.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= TOOL MODAL (DEDICATED INTERACTIVE ENVIRONMENT) ================= -->
+  <div id="toolModal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="w-full max-w-2xl max-h-[90vh] glass-panel rounded-2xl border border-white/15 flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      
+      <!-- Modal Header -->
+      <div class="p-5 border-b border-white/10 flex items-center justify-between bg-carbon">
+        <div class="flex items-center space-x-3">
+          <div id="modalIconWrap" class="w-9 h-9 rounded-xl bg-cyan-500/20 text-cyan-300 flex items-center justify-center">
+            <i data-lucide="tool" id="modalIcon" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h2 id="modalTitle" class="text-base font-bold text-white">Tool Name</h2>
+            <p id="modalSubtitle" class="text-xs text-slate-400">Tool descriptive subtitle</p>
+          </div>
+        </div>
+        <button onclick="closeToolModal()" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body (Dynamic Tool Containers) -->
+      <div id="modalBody" class="p-6 overflow-y-auto space-y-5 text-sm text-slate-300">
+        <!-- Rendered dynamically by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 px-4 py-3 rounded-xl glass-panel border border-cyan-500/40 text-xs text-white shadow-xl flex items-center space-x-2">
+    <i data-lucide="check-circle-2" class="w-4 h-4 text-cyan-400"></i>
+    <span id="toastMsg">Operation logged successfully</span>
+  </div>
+
+  <!-- ================= LOGIC & DATA ENGINE ================= -->
+  <script>
+    /* -------------------------------------------------------------
+       STATE MANAGEMENT & LOCAL STORAGE
+    ------------------------------------------------------------- */
+    const STORAGE_KEYS = {
+      AUTH: 'aetherfin_auth_user',
+      HISTORY: 'aetherfin_ledger_history',
+      DAILY_CAP: 'aetherfin_daily_cap',
+      EXPENSES_TODAY: 'aetherfin_expenses_today',
+      VISA_HOURS: 'aetherfin_visa_hours',
+      SUBS: 'aetherfin_subs',
+      CHAT: 'aetherfin_chat_msgs',
+      BASE_CURR: 'aetherfin_base_curr'
+    };
+
+    // Exchange rates against USD baseline
+    const FX_RATES = {
+      USD: 1.0,
+      EUR: 0.92,
+      GBP: 0.79,
+      BDT: 119.50,
+      CAD: 1.36,
+      CNY: 7.24,
+      INR: 83.40
+    };
+
+    let currentUser = null;
+    let activityLedger = [];
+    let chatConversation = [];
+
+    // Initialize State
+    window.addEventListener('DOMContentLoaded', () => {
+      loadSavedData();
+      checkAuth();
+      lucide.createIcons();
+      updateDashboardStats();
+    });
+
+    function loadSavedData() {
+      try {
+        const storedAuth = localStorage.getItem(STORAGE_KEYS.AUTH);
+        if (storedAuth) currentUser = JSON.parse(storedAuth);
+
+        const storedHistory = localStorage.getItem(STORAGE_KEYS.HISTORY);
+        activityLedger = storedHistory ? JSON.parse(storedHistory) : getInitialLedger();
+
+        const storedChat = localStorage.getItem(STORAGE_KEYS.CHAT);
+        if (storedChat) {
+          chatConversation = JSON.parse(storedChat);
+          renderChatMessages();
+        }
+
+        const storedBase = localStorage.getItem(STORAGE_KEYS.BASE_CURR);
+        if (storedBase) {
+          const select = document.getElementById('globalBaseCurr');
+          if (select) select.value = storedBase;
+        }
+      } catch (e) {
+        console.error("Local storage load error", e);
+      }
+    }
+
+    function getInitialLedger() {
+      return [
+        { id: 1, tool: 'CampusGrant', desc: 'Matched $3,500 STEM Aid eligibility', timestamp: 'Yesterday, 14:20', currency: 'USD' },
+        { id: 2, tool: 'VisaHour', desc: 'Logged 4.5 hrs lab assistant shift (Total: 14.5 / 20.0)', timestamp: 'Today, 10:15', currency: 'HRS' },
+        { id: 3, tool: 'DailyCap', desc: 'Logged Groceries expense: $15.50 (Cap: $50)', timestamp: 'Today, 12:45', currency: 'USD' }
+      ];
+    }
+
+    function saveHistoryLedger(toolName, description, currency = 'USD') {
+      const entry = {
+        id: Date.now(),
+        tool: toolName,
+        desc: description,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ', Today',
+        currency: currency
+      };
+      activityLedger.unshift(entry);
+      localStorage.setItem(STORAGE_KEYS.HISTORY, JSON.stringify(activityLedger));
+      updateDashboardStats();
+      showToast(`${toolName}: Action logged to History`);
+    }
+
+    function updateDashboardStats() {
+      const countBadge = document.getElementById('historyCounterBadge');
+      if (countBadge) countBadge.innerText = `${activityLedger.length} events logged`;
+
+      // Visa Hours
+      const visaHours = parseFloat(localStorage.getItem(STORAGE_KEYS.VISA_HOURS) || '14.5');
+      const visaStat = document.getElementById('statVisaHours');
+      if (visaStat) {
+        visaStat.innerText = `${visaHours.toFixed(1)} / 20.0 hrs`;
+        visaStat.className = visaHours > 20 ? 'text-base font-bold text-rose-400' : 'text-base font-bold text-emerald-400';
+      }
+
+      // Daily Cap
+      const cap = parseFloat(localStorage.getItem(STORAGE_KEYS.DAILY_CAP) || '50.00');
+      const spent = parseFloat(localStorage.getItem(STORAGE_KEYS.EXPENSES_TODAY) || '15.50');
+      const remain = Math.max(0, cap - spent);
+      const capStat = document.getElementById('statCapRemain');
+      if (capStat) capStat.innerText = `$${remain.toFixed(2)}`;
+
+      // Subscriptions
+      const subs = JSON.parse(localStorage.getItem(STORAGE_KEYS.SUBS) || '["Spotify Student", "ChatGPT Plus", "GitHub Student", "AWS Educate"]');
+      const subStat = document.getElementById('statSubCount');
+      if (subStat) subStat.innerText = `${subs.length} Active`;
+    }
+
+    /* -------------------------------------------------------------
+       AUTHENTICATION / USER GATE
+    ------------------------------------------------------------- */
+    function checkAuth() {
+      const overlay = document.getElementById('authOverlay');
+      if (currentUser) {
+        overlay.classList.add('hidden');
+        document.getElementById('userAvatar').innerText = currentUser.email.charAt(0).toUpperCase();
+      } else {
+        overlay.classList.remove('hidden');
+      }
+    }
+
+    function handleLogin(e) {
+      if (e) e.preventDefault();
+      const email = document.getElementById('loginEmail').value;
+      currentUser = { email: email, loginAt: new Date().toISOString() };
+      localStorage.setItem(STORAGE_KEYS.AUTH, JSON.stringify(currentUser));
+      document.getElementById('authOverlay').classList.add('hidden');
+      document.getElementById('userAvatar').innerText = email.charAt(0).toUpperCase();
+      showToast(`Welcome back, ${email.split('@')[0]}`);
+    }
+
+    function quickGuestAccess() {
+      currentUser = { email: 'guest.scholar@mit.edu', loginAt: new Date().toISOString() };
+      localStorage.setItem(STORAGE_KEYS.AUTH, JSON.stringify(currentUser));
+      document.getElementById('authOverlay').classList.add('hidden');
+      document.getElementById('userAvatar').innerText = 'G';
+      showToast('Authenticated in Guest Demo Mode');
+    }
+
+    function handleLogout() {
+      localStorage.removeItem(STORAGE_KEYS.AUTH);
+      currentUser = null;
+      document.getElementById('authOverlay').classList.remove('hidden');
+      showToast('Logged out of secure terminal');
+    }
+
+    /* -------------------------------------------------------------
+       NAVIGATION & BASE CURRENCY
+    ------------------------------------------------------------- */
+    function switchNav(tab) {
+      const toolsView = document.getElementById('toolsView');
+      const chatView = document.getElementById('chatView');
+      const navBtnTools = document.getElementById('navBtnTools');
+      const navBtnChat = document.getElementById('navBtnChat');
+
+      if (tab === 'tools') {
+        toolsView.classList.remove('hidden');
+        chatView.classList.add('hidden');
+        navBtnTools.className = "flex items-center space-x-2 px-4 py-1.5 rounded-lg text-xs font-semibold bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 transition";
+        navBtnChat.className = "flex items-center space-x-2 px-4 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition";
+      } else if (tab === 'chat') {
+        toolsView.classList.add('hidden');
+        chatView.classList.remove('hidden');
+        navBtnChat.className = "flex items-center space-x-2 px-4 py-1.5 rounded-lg text-xs font-semibold bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 transition";
+        navBtnTools.className = "flex items-center space-x-2 px-4 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition";
+      }
+      lucide.createIcons();
+    }
+
+    function updateBaseCurrency(val) {
+      localStorage.setItem(STORAGE_KEYS.BASE_CURR, val);
+      saveHistoryLedger('System', `Base currency defaulted to ${val}`, val);
+    }
+
+    /* -------------------------------------------------------------
+       INTERACTIVE TOOL VIEWS (9 MODULES + HISTORY)
+    ------------------------------------------------------------- */
+    function openTool(toolKey) {
+      const modal = document.getElementById('toolModal');
+      const title = document.getElementById('modalTitle');
+      const subtitle = document.getElementById('modalSubtitle');
+      const icon = document.getElementById('modalIcon');
+      const body = document.getElementById('modalBody');
+
+      modal.classList.remove('hidden');
+
+      switch (toolKey) {
+        // TOOL 1
+        case 'campusGrant':
+          title.innerText = 'CampusGrant Engine';
+          subtitle.innerText = 'Scholarship Aid Finder & Tuition Deadline Guard';
+          icon.setAttribute('data-lucide', 'graduation-cap');
+          body.innerHTML = `
+            <div class="space-y-4">
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="text-xs text-slate-400 block mb-1">Study Level & Major</label>
+                  <select id="cgMajor" class="w-full bg-carbon border border-white/10 rounded-xl p-2.5 text-xs text-white">
+                    <option>Computer Science & Engineering</option>
+                    <option>Business Administration & Finance</option>
+                    <option>Biomedical & Healthcare</option>
+                    <option>Humanities & Social Sciences</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="text-xs text-slate-400 block mb-1">Target Country / Region</label>
+                  <select id="cgRegion" class="w-full bg-carbon border border-white/10 rounded-xl p-2.5 text-xs text-white">
+                    <option>United States (F-1)</option>
+                    <option>Germany / EU (DAAD)</option>
+                    <option>United Kingdom (Tier 4)</option>
+                    <option>Canada (Study Permit)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label class="text-xs text-slate-400 block mb-1">Current GPA / Equivalent (Scale 4.0)</label>
+                <input type="number" step="0.1" id="cgGpa" value="3.7" class="w-full bg-carbon border border-white/10 rounded-xl p-2.5 text-xs text-white" />
+              </div>
+
+              <button onclick="calculateGrantMatch()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 rounded-xl text-xs font-semibold text-white shadow-lg shadow-indigo-600/30 transition">
+                Find Eligible Grants & Aid Deadlines
+              </button>
+
+              <div id="grantResults" class="p-4 rounded-xl bg-surface border border-white/5 space-y-2 text-xs">
+                <div class="flex justify-between items-center text-white font-semibold">
+                  <span>Global Excellence STEM Bursary</span>
+                  <span class="text-emerald-400">$4,500 / sem</span>
+                </div>
+                <p class="text-[11px] text-slate-400">Deadline: Nov 30, 2026 &bull; Requirements: 3.5+ GPA & Intl Student Status</p>
+                <div class="pt-2 flex justify-between items-center">
+                  <span class="text-amber-400 font-mono text-[11px]">Match Rating: 94%</span>
+                  <button onclick="saveHistoryLedger('CampusGrant', 'Saved Grant Application: Global STEM Bursary ($4500)')" class="px-2.5 py-1 bg-white/10 hover:bg-white/20 rounded text-[11px] text-white">Save to Ledger</button>
+                </div>
+              </div>
+            </div>
+          `;
+          break;
+
+        // TOOL 2
+        case 'leaseVault':
+          title.innerText = 'LeaseVault Safeguard';
+          subtitle.innerText = 'Security Deposit Protection & Lease Agreement Inspector';
+          icon.setAttribute('data-lucide', 'home');
+          body.innerHTML = `
+            <div class="space-y-4">
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="text-xs text-slate-400 block mb-1">Monthly Rent Amount ($)</label>
+                  <input type="number" id="lvRent" value="650" class="w-full bg-carbon border border-white/10 rounded-xl p-2.5 text-xs text-white" />
+                </div>
+                <div>
+                  <label class="text-xs text-slate-400 block mb-1">Deposit Paid to Landlord ($)</label>
+                  <input type="number" id="lvDeposit" value="1300" class="w-full bg-carbon border border-white/10 rounded-xl p-2.5 text-xs text-white" />
+                </div>
+              </div>
+
+              <div>
+                <label class="text-xs text-slate-400 block mb-1">Paste Lease Clause or Potential Issue</label>
+                <textarea id="lvClause" rows="3" class="w-full bg-carbon border border-white/10 rounded-xl p-2.5 text-xs text-white" placeholder="Example: Landlord reserves the right to deduct $250 automatic cleaning fee from deposit at move out..."></textarea>
+              </div>
+
+              <div class="flex space-x-2">
+                <button onclick="scanLeaseClause()" class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-500 rounded-xl text-xs font-semibold text-white transition">
+                  Scan For Unfair Tenant Clauses
+                </button>
+                <button onclick="logDepositEscrow()" class="px-4 py-2.5 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-semibold text-slate-200">
+                  Record Escrow
+                </button>
+              </div>
+
+              <div id="leaseResult" class="hidden p-3.5 rounded-xl bg-amber-950/30 border border-amber-500/30 text-xs text-amber-200 leading-relaxed">
+                <!-- generated response -->
+              </div>
+            </div>
+          `;
+          break;
+
+        // TOOL 3
+        case 'visaHour':
+          title.innerText = 'VisaHour Tracker';
+          subtitle.innerText = '20-Hr Weekly International Student Compliance Sentinel';
+          icon.setAttribute('data-lucide', 'clock');
+          const currentHours = parseFloat(localStorage.getItem(STORAGE_KEYS.VISA_HOURS) || '14.5');
+          body.innerHTML = `
+            <div class="space-y-4">
+              <div class="p-4 rounded-xl bg-surface border border-white/5 flex items-center justify-between">
+                <div>
+                  <p class="text-xs text-slate-400">Current Week Logged</p>
+                  <p class="text-2xl font-bold text-white mt-1">${currentHours.toFixed(1)} <span class="text-sm font-normal text-slate-400">/ 20.0 hrs</span></p>
+                </div>
+                <div class="text-right">
+                  <span class="text-xs px-2.5 py-1 rounded-full ${currentHours <= 20 ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'}">
+                    ${currentHours <= 20 ? 'COMPLIANT (Safe)' : 'VIOLATION ALERT!'}
+                  </span>
+                  <p class="text-[10px] text-slate-400 mt-1">Remaining: ${(Math.max(0, 20 - currentHours)).toFixed(1)} hrs</p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="text-xs text-slate-400 block mb-1">Add Shift Hours</label>
+                  <input type="number" step="0.5" id="vhAddHours" value="3.5" class="w-full bg-carbon border border-white/10 rounded-xl p-2.5 text-xs text-white" />
+                </div>
+                <div>
+                  <label class="text-xs text-slate-400 block mb-1">Hourly Wage Rate ($)</label>
+                  <input type="number" id="vhWage" value="16.50" class="w-full bg-carbon border border-white/10 rounded-xl p-2.5 text-xs text-white" />
+                </div>
+              </div>
+
+              <button onclick="logVisaShift()" class="w-full py-2.5 bg-amber-600 hover:bg-amber-500 rounded-xl text-xs font-semibold text-white transition">
+                Log Shift & Compute Net Earnings
+              </button>
+
+              <button onclick="resetVisaHours()" class="w-full py-2 bg-white/5 hover:bg-white/10 rounded-xl text-[11px] text-slate-400 transition">
+                Reset Hours for New Monday Week
+              </button>
+            </div>
+          `;
+          break;
+
+        // TOOL 4
+        case 'dailyCap':
+          title.innerText = 'DailyCap Guard';
+          subtitle.innerText = 'Student Daily Spending Allowance & Expense Burn-Rate';
+          icon.setAttribute('data-lucide', 'target');
+          const capVal = parseFloat(localStorage.getItem(STORAGE_KEYS.DAILY_CAP) || '50.00');
+          const spentVal = parseFloat(localStorage.getItem(STORAGE_KEYS.EXPENSES_TODAY) || '15.50');
+          body.innerHTML = `
+            <div class="space-y-4">
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="text-xs text-slate-400 block mb-1">Daily Cap Threshold ($)</label>
+                  <input type="number" id="dcCapInput" value="${capVal.toFixed(2)}" class="w-full bg-carbon border border-white/10 rounded-xl p-2.5 text-xs text-white" />
+                </div>
+                <div>
+                  <label class="text-xs text-slate-400 block mb-1">Today's Total Spent ($)</label>
+                  <input type="text" readonly value="$${spentVal.toFixed(2)}" class="w-full bg-surface border border-white/10 rounded-xl p-2.5 text-xs text-cyan-300 font-mono" />
+                </div>
+              </div>
+
+              <div class="w-full bg-black/40 rounded-full h-3 overflow-hidden border border-white/10">
+                <div class="bg-gradient-to-r from-cyan-400 to-rose-500 h-full" style="width: ${Math.min(100, (spentVal / capVal) * 100)}%"></div>
+              </div>
+
+              <div class="p-3 bg-surface rounded-xl border border-white/5">
+                <label class="text-xs text-slate-400 block mb-1">Quick Log Expense</label>
+                <div class="flex space-x-2">
+                  <input type="text" id="dcDesc" placeholder="e.g. Subway lunch" class="flex-1 bg-carbon border border-white/10 rounded-xl px-3 py-2 text-xs text-white" />
+                  <input type="number" id="dcAmount" placeholder="Amount ($)" class="w-24 bg-carbon border border-white/10 rounded-xl px-3 py-2 text-xs text-white" />
+                  <button onclick="addDailyExpense()" class="px-4 py-2 bg-rose-600 hover:bg-rose-500 rounded-xl text-xs font-semibold text-white transition">Log</button>
+                </div>
+              </div>
+            </div>
+          `;
+          break;
+
+        // TOOL 5
+        case 'subCancel':
+          title.innerText = 'SubCancel Sentinel';
+          subtitle.innerText = 'Recurring Trial & Unused Student License Tracker';
+          icon.setAttribute('data-lucide', 'refresh-cw');
+          const currentSubs = JSON.parse(localStorage.getItem(STORAGE_KEYS.SUBS) || '["Spotify Student", "ChatGPT Plus", "GitHub Student", "AWS Educate"]');
+          body.innerHTML = `
+            <div class="space-y-4">
+              <div class="space-y-2" id="subListContainer">
+                ${currentSubs.map((sub, idx) => `
+                  <div class="flex items-center justify-between p-3 rounded-xl bg-surface border border-white/5 text-xs">
+                    <span class="text-white font-medium">${sub}</span>
+                    <button onclick="removeSubscription(${idx})" class="text-rose-400 hover:text-rose-300 font-mono text-[11px]">Cancel / Remove</button>
+                  </div>
+                `).join('')}
+              </div>
+
+              <div class="flex space-x-2 pt-2">
+                <input type="text" id="newSubInput" placeholder="Add subscription (e.g. Adobe Suite $19.99)" class="flex-1 bg-carbon border border-white/10 rounded-xl px-3 py-2 text-xs text-white" />
+                <button onclick="addNewSub()" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded-xl text-xs font-semibold text-white">Add</button>
+              </div>
+
+              <button onclick="generateCancelDraft()" class="w-full py-2 bg-white/10 hover:bg-white/15 text-slate-300 rounded-xl text-xs transition">
+                ⚡ Auto-Generate Student Subscription Cancellation Email Draft
+              </button>
+              <div id="cancelDraftBox" class="hidden p-3 bg-black/50 border border-white/10 rounded-xl text-xs font-mono text-slate-300"></div>
+            </div>
+          `;
+          break;
+
+        // TOOL 6
+        case 'fxAlerts':
+          title.innerText = 'Live FX Exchange & Alerts';
+          subtitle.innerText = 'Multi-Currency Conversion & Student Transfer Comparison';
+          icon.setAttribute('data-lucide', 'arrow-left-right');
+          body.innerHTML = `
+            <div class="space-y-4">
+              <div class="grid grid-cols-3 gap-2">
+                <div>
+                  <label class="text-xs text-slate-400 block mb-1">From Amount</label>
+                  <input type="number" id="fxFromAmt" value="500" oninput="calculateFX()" class="w-full bg-carbon border border-white/10 rounded-xl p-2.5 text-xs text-white" />
+                </div>
+                <div>
+                  <label class="text-xs text-slate-400 block mb-1">Origin</label>
+                  <select id="fxFromCur" onchange="calculateFX()" class="w-full bg-carbon border border-white/10 rounded-xl p-2.5 text-xs text-white font-mono">
+                    <option value="USD">USD</option>
+                    <option value="EUR">EUR</option>
+                    <option value="GBP">GBP</option>
+                    <option value="CAD">CAD</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="text-xs text-slate-400 block mb-1">Target Currency</label>
+                  <select id="fxToCur" onchange="calculateFX()" class="w-full bg-carbon border border-white/10 rounded-xl p-2.5 text-xs text-white font-mono">
+                    <option value="BDT">BDT</option>
+                    <option value="EUR">EUR</option>
+                    <option value="GBP">GBP</option>
+                    <option value="CNY">CNY</option>
+                    <option value="INR">INR</option>
+                    <option value="USD">USD</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="p-4 rounded-xl bg-surface border border-cyan-500/20 text-center">
+                <p class="text-xs text-slate-400">Calculated Payout (Zero Bank Markup)</p>
+                <p class="text-2xl font-bold text-cyan-400 mt-1 font-mono" id="fxOutput">59,750.00 BDT</p>
+                <p class="text-[11px] text-slate-500 mt-1" id="fxRateNotice">1 USD = 119.50 BDT &bull; Estimated saving vs traditional bank: $24.80</p>
+              </div>
+
+              <div class="flex space-x-2">
+                <input type="number" id="fxAlertThreshold" placeholder="Alert me if rate exceeds..." class="flex-1 bg-carbon border border-white/10 rounded-xl px-3 py-2 text-xs text-white" />
+                <button onclick="setFXAlert()" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 rounded-xl text-xs font-semibold text-black transition">Set Rate Alert</button>
+              </div>
+            </div>
+          `;
+          setTimeout(calculateFX, 50);
+          break;
+
+        // TOOL 7
+        case 'microFund':
+          title.innerText = 'Emergency MicroFund (PeerAid)';
+          subtitle.innerText = 'Interest-Free Mutual Aid Pool for Students';
+          icon.setAttribute('data-lucide', 'heart-handshake');
+          body.innerHTML = `
+            <div class="space-y-4">
+              <div class="p-4 rounded-xl bg-gradient-to-r from-pink-950/40 to-surface border border-pink-500/20 flex justify-between items-center">
+                <div>
+                  <p class="text-xs text-slate-400">Available Campus Community Pool</p>
+                  <p class="text-xl font-bold text-white mt-0.5">$1,850.00</p>
+                </div>
+                <span class="text-xs px-2.5 py-1 bg-pink-500/20 text-pink-300 rounded-full border border-pink-500/30">0% Interest Cap</span>
+              </div>
+
+              <div>
+                <label class="text-xs text-slate-400 block mb-1">Emergency Request Reason</label>
+                <select id="mfReason" class="w-full bg-carbon border border-white/10 rounded-xl p-2.5 text-xs text-white">
+                  <option>Grocery & Food support (end of month)</option>
+                  <option>Urgent Textbook / Lab materials</option>
+                  <option>Transit pass before next part-time wage</option>
+                  <option>Emergency prescription co-pay</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="text-xs text-slate-400 block mb-1">Amount Needed ($50 to $200 max)</label>
+                <input type="number" id="mfAmount" value="75" max="200" class="w-full bg-carbon border border-white/10 rounded-xl p-2.5 text-xs text-white" />
+              </div>
+
+              <button onclick="requestMicroFund()" class="w-full py-2.5 bg-pink-600 hover:bg-pink-500 rounded-xl text-xs font-semibold text-white transition">
+                Submit PeerAid Micro-Advance Request
+              </button>
+            </div>
+          `;
+          break;
+
+        // TOOL 8
+        case 'smartSplit':
+          title.innerText = 'SmartSplit Ledger';
+          subtitle.innerText = 'Roommate Multi-Currency Grocery & Apartment Expense Split';
+          icon.setAttribute('data-lucide', 'users');
+          body.innerHTML = `
+            <div class="space-y-4">
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="text-xs text-slate-400 block mb-1">Total Bill Description</label>
+                  <input type="text" id="ssDesc" value="Apartment Fiber Internet & Water" class="w-full bg-carbon border border-white/10 rounded-xl p-2.5 text-xs text-white" />
+                </div>
+                <div>
+                  <label class="text-xs text-slate-400 block mb-1">Total Cost ($)</label>
+                  <input type="number" id="ssTotal" value="120" oninput="recalcSplit()" class="w-full bg-carbon border border-white/10 rounded-xl p-2.5 text-xs text-white" />
+                </div>
+              </div>
+
+              <div>
+                <label class="text-xs text-slate-400 block mb-1">Number of Roommates</label>
+                <input type="number" id="ssCount" value="3" min="1" max="10" oninput="recalcSplit()" class="w-full bg-carbon border border-white/10 rounded-xl p-2.5 text-xs text-white" />
+              </div>
+
+              <div class="p-4 rounded-xl bg-surface border border-blue-500/20 flex justify-between items-center text-xs">
+                <div>
+                  <span class="text-slate-400 block">Each Person Owes:</span>
+                  <span class="text-xl font-bold text-blue-400 font-mono" id="ssEach">$40.00</span>
+                </div>
+                <button onclick="saveSmartSplit()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-semibold transition">
+                  Generate Settle Links
+                </button>
+              </div>
+            </div>
+          `;
+          break;
+
+        // TOOL 9
+        case 'studentPerks':
+          title.innerText = 'StudentPerks Radar';
+          subtitle.innerText = 'Local Travel, Food & Tech Privilege Finder';
+          icon.setAttribute('data-lucide', 'tag');
+          body.innerHTML = `
+            <div class="space-y-3">
+              <div class="p-3 bg-surface rounded-xl border border-white/5 flex justify-between items-center">
+                <div>
+                  <p class="text-xs font-semibold text-white">Metropolitan Student Transit Pass</p>
+                  <p class="text-[11px] text-slate-400">50% discount on unlimited monthly rail & bus</p>
+                </div>
+                <button onclick="claimPerk('Transit Pass 50%')" class="px-3 py-1 bg-teal-600/20 text-teal-300 border border-teal-500/30 rounded-lg text-xs">Claim</button>
+              </div>
+
+              <div class="p-3 bg-surface rounded-xl border border-white/5 flex justify-between items-center">
+                <div>
+                  <p class="text-xs font-semibold text-white">GitHub Student Developer Pack</p>
+                  <p class="text-[11px] text-slate-400">Free Copilot, JetBrains, Domain & Cloud Credits ($2,000 value)</p>
+                </div>
+                <button onclick="claimPerk('GitHub Student Pack')" class="px-3 py-1 bg-teal-600/20 text-teal-300 border border-teal-500/30 rounded-lg text-xs">Claim</button>
+              </div>
+
+              <div class="p-3 bg-surface rounded-xl border border-white/5 flex justify-between items-center">
+                <div>
+                  <p class="text-xs font-semibold text-white">Supermarket 10% Student Tuesdays</p>
+                  <p class="text-[11px] text-slate-400">Save 10% on fresh produce and pantry staples with Student ID</p>
+                </div>
+                <button onclick="claimPerk('Supermarket Tuesday 10%')" class="px-3 py-1 bg-teal-600/20 text-teal-300 border border-teal-500/30 rounded-lg text-xs">Claim</button>
+              </div>
+            </div>
+          `;
+          break;
+
+        // MODULE 10: HISTORY LEDGER
+        case 'history':
+          title.innerText = 'Persistent History Ledger';
+          subtitle.innerText = 'Complete Chronological Audit Log of Financial Actions';
+          icon.setAttribute('data-lucide', 'history');
+          renderHistoryInModal(body);
+          break;
+      }
+
+      lucide.createIcons();
+    }
+
+    function closeToolModal() {
+      document.getElementById('toolModal').classList.add('hidden');
+    }
+
+    /* -------------------------------------------------------------
+       TOOL CALCULATIONS & SUBMIT ACTIONS
+    ------------------------------------------------------------- */
+    function calculateGrantMatch() {
+      const gpa = parseFloat(document.getElementById('cgGpa').value);
+      const res = document.getElementById('grantResults');
+      if (gpa >= 3.6) {
+        res.innerHTML = `
+          <div class="flex justify-between items-center text-white font-semibold">
+            <span>Dean's Merit International Scholarship</span>
+            <span class="text-emerald-400">$6,000 / year</span>
+          </div>
+          <p class="text-[11px] text-slate-400">Status: High Eligibility based on ${gpa} GPA &bull; Priority Window Open</p>
+          <div class="pt-2 flex justify-between items-center">
+            <span class="text-cyan-400 font-mono text-[11px]">Match Rating: 98%</span>
+            <button onclick="saveHistoryLedger('CampusGrant', 'Dean\\'s Merit Scholarship Saved ($6000)')" class="px-2.5 py-1 bg-white/10 rounded text-[11px] text-white">Record</button>
+          </div>
+        `;
+      } else {
+        res.innerHTML = `
+          <div class="flex justify-between items-center text-white font-semibold">
+            <span>Departmental Work-Study Bursary</span>
+            <span class="text-amber-400">$2,500 / sem</span>
+          </div>
+          <p class="text-[11px] text-slate-400">Need-based aid matching completed &bull; Application due in 14 days</p>
+        `;
+      }
+    }
+
+    function scanLeaseClause() {
+      const txt = document.getElementById('lvClause').value;
+      const res = document.getElementById('leaseResult');
+      res.classList.remove('hidden');
+      if (txt.toLowerCase().includes('cleaning') || txt.toLowerCase().includes('non-refundable') || txt.toLowerCase().includes('automatic deduction')) {
+        res.innerHTML = `<strong>⚠️ Warning: Potential Illegal Clause:</strong> In many jurisdictions, mandatory non-refundable cleaning deductions are forbidden unless backed by actual damage receipts. Request an itemized move-out escrow addendum.`;
+      } else {
+        res.innerHTML = `<strong>Clause Safe:</strong> Standard wear-and-tear terminology recognized. Ensure you photograph walls, fixtures and meters before move-in.`;
+      }
+    }
+
+    function logDepositEscrow() {
+      const dep = document.getElementById('lvDeposit').value;
+      saveHistoryLedger('LeaseVault', `Logged Security Deposit Escrow: $${dep}`);
+      closeToolModal();
+    }
+
+    function logVisaShift() {
+      const add = parseFloat(document.getElementById('vhAddHours').value || '0');
+      const wage = parseFloat(document.getElementById('vhWage').value || '0');
+      let curr = parseFloat(localStorage.getItem(STORAGE_KEYS.VISA_HOURS) || '14.5');
+      curr += add;
+      localStorage.setItem(STORAGE_KEYS.VISA_HOURS, curr.toString());
+      
+      const gross = add * wage;
+      const estimatedTax = gross * 0.12; // 12% student tax bracket approx
+      const net = gross - estimatedTax;
+
+      saveHistoryLedger('VisaHour', `Logged +${add} hrs ($${net.toFixed(2)} net after tax) &bull; Total: ${curr.toFixed(1)}/20 hrs`);
+      updateDashboardStats();
+      closeToolModal();
+    }
+
+    function resetVisaHours() {
+      localStorage.setItem(STORAGE_KEYS.VISA_HOURS, '0');
+      saveHistoryLedger('VisaHour', 'Reset weekly hour tracker for new cycle');
+      updateDashboardStats();
+      closeToolModal();
+    }
+
+    function addDailyExpense() {
+      const desc = document.getElementById('dcDesc').value || 'Expense';
+      const amt = parseFloat(document.getElementById('dcAmount').value || '0');
+      if (amt <= 0) return;
+
+      let spent = parseFloat(localStorage.getItem(STORAGE_KEYS.EXPENSES_TODAY) || '15.50');
+      spent += amt;
+      localStorage.setItem(STORAGE_KEYS.EXPENSES_TODAY, spent.toString());
+
+      saveHistoryLedger('DailyCap', `Spent $${amt.toFixed(2)} on "${desc}"`);
+      updateDashboardStats();
+      closeToolModal();
+    }
+
+    function addNewSub() {
+      const val = document.getElementById('newSubInput').value;
+      if (!val) return;
+      let subs = JSON.parse(localStorage.getItem(STORAGE_KEYS.SUBS) || '["Spotify Student", "ChatGPT Plus", "GitHub Student", "AWS Educate"]');
+      subs.push(val);
+      localStorage.setItem(STORAGE_KEYS.SUBS, JSON.stringify(subs));
+      saveHistoryLedger('SubCancel', `Added subscription tracker for "${val}"`);
+      openTool('subCancel');
+    }
+
+    function removeSubscription(index) {
+      let subs = JSON.parse(localStorage.getItem(STORAGE_KEYS.SUBS) || '[]');
+      const removed = subs.splice(index, 1);
+      localStorage.setItem(STORAGE_KEYS.SUBS, JSON.stringify(subs));
+      saveHistoryLedger('SubCancel', `Cancelled/Removed subscription: ${removed[0]}`);
+      openTool('subCancel');
+    }
+
+    function generateCancelDraft() {
+      const draft = document.getElementById('cancelDraftBox');
+      draft.classList.remove('hidden');
+      draft.innerText = `Subject: Cancellation Request - Student Account\n\nDear Customer Support,\nI am writing to terminate my subscription effective immediately as per student budget constraints. Please confirm that recurring billing has ended and no further charges will apply.\n\nThank you,\n${currentUser ? currentUser.email : 'Student Member'}`;
+    }
+
+    function calculateFX() {
+      const amt = parseFloat(document.getElementById('fxFromAmt').value || '0');
+      const from = document.getElementById('fxFromCur').value;
+      const to = document.getElementById('fxToCur').value;
+
+      const inUSD = amt / FX_RATES[from];
+      const targetAmt = inUSD * FX_RATES[to];
+
+      const out = document.getElementById('fxOutput');
+      if (out) out.innerText = `${targetAmt.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${to}`;
+
+      const notice = document.getElementById('fxRateNotice');
+      if (notice) {
+        notice.innerText = `1 ${from} = ${(FX_RATES[to] / FX_RATES[from]).toFixed(4)} ${to} &bull; Real-time student wire benchmark`;
+      }
+    }
+
+    function setFXAlert() {
+      const th = document.getElementById('fxAlertThreshold').value;
+      const to = document.getElementById('fxToCur').value;
+      if (!th) return;
+      saveHistoryLedger('Live FX', `Rate alert armed for ${to} exceeding ${th}`);
+      closeToolModal();
+    }
+
+    function requestMicroFund() {
+      const reason = document.getElementById('mfReason').value;
+      const amt = document.getElementById('mfAmount').value;
+      saveHistoryLedger('PeerAid', `MicroFund Requested: $${amt} for ${reason}`);
+      closeToolModal();
+    }
+
+    function recalcSplit() {
+      const tot = parseFloat(document.getElementById('ssTotal').value || '0');
+      const count = parseInt(document.getElementById('ssCount').value || '1');
+      const each = count > 0 ? (tot / count).toFixed(2) : tot;
+      document.getElementById('ssEach').innerText = `$${each}`;
+    }
+
+    function saveSmartSplit() {
+      const desc = document.getElementById('ssDesc').value;
+      const each = document.getElementById('ssEach').innerText;
+      saveHistoryLedger('SmartSplit', `Divided "${desc}": each roommate owes ${each}`);
+      closeToolModal();
+    }
+
+    function claimPerk(perkName) {
+      saveHistoryLedger('StudentPerks', `Claimed perk privilege: ${perkName}`);
+      closeToolModal();
+    }
+
+    function renderHistoryInModal(container) {
+      if (activityLedger.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">No financial transactions or tool events recorded yet.</p>`;
+        return;
+      }
+
+      container.innerHTML = `
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-xs text-slate-400">Total Events: ${activityLedger.length}</span>
+          <button onclick="clearEntireLedger()" class="text-xs text-rose-400 hover:text-rose-300">Clear History</button>
+        </div>
+        <div class="space-y-2 max-h-[60vh] overflow-y-auto">
+          ${activityLedger.map(item => `
+            <div class="p-3 bg-surface rounded-xl border border-white/5 flex items-center justify-between text-xs">
+              <div>
+                <span class="font-semibold text-cyan-300 mr-2">[${item.tool}]</span>
+                <span class="text-slate-200">${item.desc}</span>
+              </div>
+              <span class="text-[10px] text-slate-500 font-mono whitespace-nowrap ml-4">${item.timestamp}</span>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function clearEntireLedger() {
+      activityLedger = [];
+      localStorage.removeItem(STORAGE_KEYS.HISTORY);
+      updateDashboardStats();
+      openTool('history');
+      showToast('Ledger cleared');
+    }
+
+    /* -------------------------------------------------------------
+       AI COPILOT CHAT ENGINE
+    ------------------------------------------------------------- */
+    function handleChatSubmit(e) {
+      if (e) e.preventDefault();
+      const input = document.getElementById('chatInput');
+      const text = input.value.trim();
+      if (!text) return;
+
+      appendChatMessage('user', text);
+      input.value = '';
+
+      // Simulate streaming intelligent response
+      simulateAIResponse(text);
+    }
+
+    function sendQuickPrompt(promptText) {
+      switchNav('chat');
+      document.getElementById('chatInput').value = promptText;
+      handleChatSubmit(null);
+    }
+
+    function appendChatMessage(role, content) {
+      const container = document.getElementById('chatMessages');
+      const msgDiv = document.createElement('div');
+      msgDiv.className = `flex items-start space-x-3 max-w-3xl ${role === 'user' ? 'ml-auto flex-row-reverse space-x-reverse' : ''}`;
+
+      const avatar = document.createElement('div');
+      avatar.className = role === 'user' 
+        ? "w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-cyan-500 text-white flex items-center justify-center shrink-0 border border-white/20 mt-0.5 text-xs font-bold"
+        : "w-8 h-8 rounded-xl bg-cyan-600/30 text-cyan-300 flex items-center justify-center shrink-0 border border-cyan-500/30 mt-0.5";
+      avatar.innerHTML = role === 'user' ? 'U' : '<i data-lucide="bot" class="w-4 h-4"></i>';
+
+      const bubble = document.createElement('div');
+      bubble.className = role === 'user'
+        ? "p-4 rounded-2xl bg-cyan-600 text-slate-900 font-medium text-sm leading-relaxed shadow-lg shadow-cyan-600/20"
+        : "p-4 rounded-2xl bg-surface border border-white/5 text-sm text-slate-200 leading-relaxed shadow-lg";
+      bubble.innerHTML = content;
+
+      msgDiv.appendChild(avatar);
+      msgDiv.appendChild(bubble);
+      container.appendChild(msgDiv);
+      container.scrollTop = container.scrollHeight;
+      lucide.createIcons();
+
+      chatConversation.push({ role, content });
+      localStorage.setItem(STORAGE_KEYS.CHAT, JSON.stringify(chatConversation));
+    }
+
+    function simulateAIResponse(userQuery) {
+      const q = userQuery.toLowerCase();
+      let reply = "";
+
+      if (q.includes('visa') || q.includes('hour') || q.includes('shift')) {
+        reply = `<strong>Visa Compliance Check:</strong><br>Under standard F-1/Tier 4 student visa guidelines, you are strictly limited to <strong>20 hours per week during term time</strong>. Going even 15 minutes over can flag SEVIS compliance. <br><br>💡 <em>Action:</em> I have updated your <strong>VisaHour Tracker</strong>. You can safely schedule up to 5.5 remaining hours this week.`;
+        saveHistoryLedger('AI Copilot', 'Visa Hour Compliance Analysis run', 'LEGAL');
+      } 
+      else if (q.includes('bdt') || q.includes('transfer') || q.includes('remittance') || q.includes('convert') || q.includes('fee')) {
+        reply = `<strong>Cross-Border FX Strategy ($1,200 to BDT):</strong><br>1. Traditional wire banks charge $35-$45 in transfer fees plus a 3.5% hidden spread.<br>2. Digital P2P corridors currently offer <strong>~119.50 BDT / USD</strong>.<br>3. Total expected payout: <strong>৳143,400 BDT</strong>.<br><br>💡 <em>Tip:</em> Never exchange at airport counters or wire directly through campus cashier portals without checking mid-market rates in the FX module!`;
+        saveHistoryLedger('AI Copilot', 'FX Remittance Query: USD to BDT calculated', 'FX');
+      } 
+      else if (q.includes('lease') || q.includes('deposit') || q.includes('landlord')) {
+        reply = `<strong>Security Deposit Protection:</strong><br>Landlords cannot legally withhold deposits for 'standard wear and tear' (minor nail holes, faded carpet). Always send a formal written notice requesting an itemized invoice within 21-30 days of moving out. <br><br>💡 Use the <strong>LeaseVault Safeguard</strong> to log your initial inspection photos with timestamp hashes.`;
+      } 
+      else if (q.includes('budget') || q.includes('grocery') || q.includes('survival') || q.includes('15')) {
+        reply = `<strong>14-Day Student Survival Diet ($15/day):</strong><br>&bull; <strong>Bulk Base:</strong> Oats, Jasmine rice, Lentils/Chickpeas ($8 for 2 weeks).<br>&bull; <strong>Proteins:</strong> Eggs (60 pack), Greek yogurt, tofu or discounted ground chicken.<br>&bull; <strong>Produce:</strong> Cabbage, frozen spinach, bananas, seasonal apples.<br><br>You'll stay around $95 total over 14 days, well under your $15/day spending ceiling!`;
+      }
+      else {
+        reply = `I have analyzed your student finance profile. Your current daily burn rate and base currency are synchronized. Feel free to launch any of the 9 modules or tell me your monthly tuition deadlines, part-time wages, or remittance currency pair to optimize savings.`;
+      }
+
+      setTimeout(() => {
+        appendChatMessage('assistant', reply);
+      }, 600);
+    }
+
+    function renderChatMessages() {
+      const container = document.getElementById('chatMessages');
+      if (chatConversation.length > 0) {
+        container.innerHTML = '';
+        chatConversation.forEach(msg => {
+          appendChatMessage(msg.role, msg.content);
+        });
+      }
+    }
+
+    function clearChatHistory() {
+      chatConversation = [];
+      localStorage.removeItem(STORAGE_KEYS.CHAT);
+      const container = document.getElementById('chatMessages');
+      container.innerHTML = `
+        <div class="flex items-start space-x-3 max-w-3xl">
+          <div class="w-8 h-8 rounded-xl bg-cyan-600/30 text-cyan-300 flex items-center justify-center shrink-0 border border-cyan-500/30 mt-0.5">
+            <i data-lucide="bot" class="w-4 h-4"></i>
+          </div>
+          <div class="p-4 rounded-2xl bg-surface border border-white/5 text-sm text-slate-200 leading-relaxed shadow-lg">
+            <p class="font-semibold text-cyan-300 text-xs uppercase tracking-wider mb-1">Session Cleared</p>
+            <p>Copilot memory reset. How can I assist with your student finances today?</p>
+          </div>
+        </div>
+      `;
+      lucide.createIcons();
+      showToast('Chat history reset');
+    }
+
+    /* -------------------------------------------------------------
+       TOAST UTILITY
+    ------------------------------------------------------------- */
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMsg');
+      toastMsg.innerText = message;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 2600);
+    }
+  </script>
+</body>
+</html>
